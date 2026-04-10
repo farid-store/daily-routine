@@ -1,0 +1,675 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: rgba(99,102,241,0.25);
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --card-radius: 14px;
+  }
+  body { font-family: var(--font-sans, system-ui, sans-serif); }
+  #app { background: var(--bg); color: var(--text); min-height: 600px; padding: 0; font-size: 14px; }
+
+  #screen-home, #screen-log, #screen-stats { display: none; }
+  #screen-home.active, #screen-log.active, #screen-stats.active { display: block; }
+
+  .nav-bar {
+    display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .nav-btn {
+    flex: 1; padding: 12px 4px 10px; border: none; background: transparent;
+    color: var(--muted); font-size: 11px; cursor: pointer; display: flex;
+    flex-direction: column; align-items: center; gap: 3px; transition: color 0.2s;
+  }
+  .nav-btn.active { color: var(--accent2); border-bottom: 2px solid var(--accent); }
+  .nav-icon { font-size: 18px; }
+
+  .hero-banner {
+    background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 60%, #162032 100%);
+    padding: 20px 16px 16px; border-bottom: 1px solid var(--border);
+  }
+  .hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .player-info h2 { font-size: 18px; font-weight: 500; color: var(--text); }
+  .player-info p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .level-badge {
+    background: linear-gradient(135deg, var(--gold), #d97706);
+    color: #000; font-size: 11px; font-weight: 500;
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  .xp-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+  .xp-bar { background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; overflow: hidden; }
+  .xp-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.6s ease; }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--card-radius);
+    padding: 10px; text-align: center;
+  }
+  .stat-val { font-size: 20px; font-weight: 500; }
+  .stat-val.gold { color: var(--gold); }
+  .stat-val.green { color: var(--green); }
+  .stat-val.accent { color: var(--accent2); }
+  .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .section { padding: 0 16px 12px; }
+  .section-title {
+    font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.08em; margin: 16px 0 8px;
+  }
+
+  .routine-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--card-radius);
+    margin-bottom: 8px; overflow: hidden;
+  }
+  .routine-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; cursor: pointer; user-select: none;
+  }
+  .routine-header-left { display: flex; align-items: center; gap: 10px; }
+  .routine-icon { font-size: 20px; }
+  .routine-name { font-size: 14px; font-weight: 500; }
+  .routine-sub { font-size: 11px; color: var(--muted); }
+  .routine-progress-mini {
+    font-size: 12px; color: var(--accent2); font-weight: 500; white-space: nowrap;
+  }
+
+  .routine-body { padding: 0 14px 12px; display: none; }
+  .routine-body.open { display: block; }
+  .routine-bar-wrap { height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; margin-bottom: 10px; overflow: hidden; }
+  .routine-bar-fill { height: 100%; border-radius: 99px; background: var(--green); transition: width 0.4s; }
+
+  .task-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer; user-select: none;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-check {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
+  }
+  .task-check.done { background: var(--green); border-color: var(--green); }
+  .task-check svg { display: none; }
+  .task-check.done svg { display: block; }
+  .task-text { flex: 1; font-size: 13px; line-height: 1.4; }
+  .task-text.done { text-decoration: line-through; color: var(--muted); }
+  .task-xp { font-size: 10px; color: var(--gold); font-weight: 500; white-space: nowrap; }
+
+  .streak-section { padding: 0 16px; }
+  .streak-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .streak-day {
+    aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-size: 9px; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .streak-day.done { background: var(--green); border-color: var(--green); color: #fff; }
+  .streak-day.today { border-color: var(--accent2); color: var(--accent2); }
+  .streak-day.today.done { background: var(--green); border-color: var(--green); color: #fff; }
+  .streak-labels { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 5px; }
+  .streak-label { text-align: center; font-size: 9px; color: var(--muted); }
+
+  .btn-complete {
+    width: 100%; margin: 16px 0 8px; padding: 14px;
+    background: linear-gradient(135deg, var(--accent), #4f46e5); border: none;
+    border-radius: var(--card-radius); color: #fff; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: opacity 0.2s; letter-spacing: 0.02em;
+  }
+  .btn-complete:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-reset {
+    width: 100%; padding: 10px;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: var(--card-radius); color: var(--muted); font-size: 13px;
+    cursor: pointer;
+  }
+
+  .toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px);
+    background: var(--green); color: #fff; padding: 10px 20px; border-radius: 99px;
+    font-size: 13px; font-weight: 500; z-index: 999; transition: transform 0.35s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .log-screen { padding: 0 16px 80px; }
+  .log-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--card-radius);
+    padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .log-date { font-size: 13px; font-weight: 500; }
+  .log-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .log-badge {
+    font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 99px;
+  }
+  .log-badge.perfect { background: rgba(16,185,129,0.15); color: var(--green); }
+  .log-badge.partial { background: rgba(99,102,241,0.15); color: var(--accent2); }
+
+  .stats-screen { padding: 0 16px 80px; }
+  .big-stat {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--card-radius);
+    padding: 16px; margin-bottom: 8px;
+  }
+  .big-stat-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .big-stat-val { font-size: 28px; font-weight: 500; color: var(--accent2); }
+  .big-stat-unit { font-size: 13px; color: var(--muted); margin-left: 4px; }
+  .chart-bar-row { display: flex; align-items: flex-end; gap: 4px; height: 60px; margin-top: 10px; }
+  .chart-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--accent); opacity: 0.7; min-height: 4px; transition: all 0.4s; }
+  .chart-labels { display: flex; gap: 4px; margin-top: 4px; }
+  .chart-label { flex: 1; text-align: center; font-size: 9px; color: var(--muted); }
+
+  .weight-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .weight-input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 8px 12px; font-size: 14px;
+  }
+  .weight-btn {
+    background: var(--accent); border: none; border-radius: 8px;
+    color: #fff; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .weight-history { margin-top: 8px; }
+  .weight-entry { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+  .weight-entry:last-child { border-bottom: none; }
+  .weight-date { color: var(--muted); }
+
+  .level-up-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none;
+    align-items: center; justify-content: center; z-index: 100;
+    flex-direction: column; gap: 12px; text-align: center; padding: 24px;
+  }
+  .level-up-modal.show { display: flex; }
+  .level-up-inner {
+    background: var(--surface); border: 1px solid var(--accent); border-radius: 20px;
+    padding: 32px 24px; max-width: 300px; width: 100%;
+  }
+  .level-up-star { font-size: 48px; }
+  .level-up-title { font-size: 22px; font-weight: 500; color: var(--gold); margin: 12px 0 6px; }
+  .level-up-sub { font-size: 13px; color: var(--muted); }
+  .level-up-btn { margin-top: 20px; padding: 12px 32px; background: var(--accent); border: none; border-radius: 99px; color: #fff; font-size: 14px; cursor: pointer; }
+</style>
+
+<div id="app">
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="showScreen('home')" id="nav-home">
+      <span class="nav-icon">⚔️</span><span>Latihan</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('log')" id="nav-log">
+      <span class="nav-icon">📋</span><span>Riwayat</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('stats')" id="nav-stats">
+      <span class="nav-icon">📊</span><span>Statistik</span>
+    </button>
+  </nav>
+
+  <div id="screen-home" class="active">
+    <div class="hero-banner">
+      <div class="hero-top">
+        <div class="player-info">
+          <h2 id="player-name">Warrior Mode 🔥</h2>
+          <p id="player-subtitle">Hari ini adalah kesempatan baru</p>
+        </div>
+        <div class="level-badge" id="level-badge">LVL 1</div>
+      </div>
+      <div class="xp-row">
+        <span>XP Hari Ini</span>
+        <span id="xp-text">0 / 100 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val gold" id="streak-val">0</div>
+        <div class="stat-lbl">🔥 Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val green" id="done-val">0/13</div>
+        <div class="stat-lbl">✅ Selesai</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val accent" id="total-xp-val">0</div>
+        <div class="stat-lbl">⭐ Total XP</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Misi Hari Ini</div>
+
+      <div class="routine-card" id="card-morning">
+        <div class="routine-header" onclick="toggleCard('morning')">
+          <div class="routine-header-left">
+            <span class="routine-icon">🌅</span>
+            <div>
+              <div class="routine-name">Morning Ritual</div>
+              <div class="routine-sub">15-30 menit · Bakar lemak pagi</div>
+            </div>
+          </div>
+          <div class="routine-progress-mini" id="prog-morning">0/4</div>
+        </div>
+        <div class="routine-body open" id="body-morning">
+          <div class="routine-bar-wrap"><div class="routine-bar-fill" id="bar-morning" style="width:0%"></div></div>
+          <div id="tasks-morning"></div>
+        </div>
+      </div>
+
+      <div class="routine-card" id="card-workout">
+        <div class="routine-header" onclick="toggleCard('workout')">
+          <div class="routine-header-left">
+            <span class="routine-icon">💪</span>
+            <div>
+              <div class="routine-name">Bedroom Workout</div>
+              <div class="routine-sub">20-30 menit · Pembakaran kalori</div>
+            </div>
+          </div>
+          <div class="routine-progress-mini" id="prog-workout">0/5</div>
+        </div>
+        <div class="routine-body" id="body-workout">
+          <div class="routine-bar-wrap"><div class="routine-bar-fill" id="bar-workout" style="width:0%"></div></div>
+          <div id="tasks-workout"></div>
+        </div>
+      </div>
+
+      <div class="routine-card" id="card-night">
+        <div class="routine-header" onclick="toggleCard('night')">
+          <div class="routine-header-left">
+            <span class="routine-icon">🌙</span>
+            <div>
+              <div class="routine-name">Night Recovery</div>
+              <div class="routine-sub">15-20 menit · Pemulihan & istirahat</div>
+            </div>
+          </div>
+          <div class="routine-progress-mini" id="prog-night">0/4</div>
+        </div>
+        <div class="routine-body" id="body-night">
+          <div class="routine-bar-wrap"><div class="routine-bar-fill" id="bar-night" style="width:0%"></div></div>
+          <div id="tasks-night"></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:20px">Streak Minggu Ini</div>
+      <div class="streak-labels">
+        <div class="streak-label">S</div><div class="streak-label">S</div>
+        <div class="streak-label">R</div><div class="streak-label">K</div>
+        <div class="streak-label">J</div><div class="streak-label">S</div>
+        <div class="streak-label">M</div>
+      </div>
+      <div class="streak-grid" id="streak-grid"></div>
+
+      <button class="btn-complete" id="btn-done" onclick="markDayComplete()" disabled>
+        Selesaikan Hari Ini ⚡
+      </button>
+      <button class="btn-reset" onclick="resetDay()">↺ Reset Hari Ini</button>
+    </div>
+  </div>
+
+  <div id="screen-log">
+    <div class="log-screen">
+      <p class="section-title" style="margin-top:16px">Riwayat Perjalanan</p>
+      <div id="log-list"></div>
+    </div>
+  </div>
+
+  <div id="screen-stats">
+    <div class="stats-screen">
+      <p class="section-title" style="margin-top:16px">Statistik Perjalanan</p>
+
+      <div class="big-stat">
+        <div class="big-stat-title">Total Hari Aktif</div>
+        <div><span class="big-stat-val" id="stat-days">0</span><span class="big-stat-unit">hari</span></div>
+        <div class="chart-bar-row" id="chart-bars"></div>
+        <div class="chart-labels" id="chart-labels"></div>
+      </div>
+
+      <div class="big-stat">
+        <div class="big-stat-title">Progress Berat Badan</div>
+        <div style="display:flex;gap:16px;margin-top:4px">
+          <div>
+            <div style="font-size:11px;color:var(--muted)">Berat Awal</div>
+            <div style="font-size:18px;font-weight:500;color:var(--red)" id="weight-start">— kg</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted)">Berat Sekarang</div>
+            <div style="font-size:18px;font-weight:500;color:var(--green)" id="weight-now">— kg</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted)">Selisih</div>
+            <div style="font-size:18px;font-weight:500;color:var(--accent2)" id="weight-diff">—</div>
+          </div>
+        </div>
+        <div class="weight-input-row">
+          <input type="number" class="weight-input" id="weight-input" placeholder="Masukkan berat (kg)" step="0.1">
+          <button class="weight-btn" onclick="logWeight()">Catat</button>
+        </div>
+        <div class="weight-history" id="weight-history"></div>
+      </div>
+
+      <div class="big-stat">
+        <div class="big-stat-title">Perkiraan Kalori Terbakar</div>
+        <div><span class="big-stat-val" id="stat-cal">0</span><span class="big-stat-unit">kkal total</span></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:6px">Estimasi ~250 kkal per sesi penuh workout</p>
+      </div>
+
+      <div class="big-stat">
+        <div class="big-stat-title">Motivasi Hari Ini</div>
+        <p style="font-size:13px;line-height:1.6;color:var(--text);margin-top:4px" id="daily-quote"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="level-up-modal" id="levelup-modal">
+  <div class="level-up-inner">
+    <div class="level-up-star">⭐</div>
+    <div class="level-up-title" id="levelup-title">Level Up!</div>
+    <div class="level-up-sub" id="levelup-sub">Kamu naik ke level baru!</div>
+    <button class="level-up-btn" onclick="closeLevelUp()">Lanjutkan!</button>
+  </div>
+</div>
+
+<script>
+const TASKS = {
+  morning: [
+    { text: "Minum 500ml air putih", detail: "Aktifkan metabolisme", xp: 10 },
+    { text: "Stretching ringan 10 menit", detail: "Siapkan tubuh untuk bergerak", xp: 15 },
+    { text: "Paparan sinar matahari 5 menit", detail: "Vitamin D + mood booster", xp: 10 },
+    { text: "Daily planning (3 prioritas)", detail: "Fokus & arah hari ini", xp: 15 }
+  ],
+  workout: [
+    { text: "Bodyweight squats (15 reps)", detail: "Bakar kalori + perkuat kaki", xp: 20 },
+    { text: "Push-ups (12 reps)", detail: "Upper body & core", xp: 20 },
+    { text: "Plank (45 detik)", detail: "Core kuat = postur lebih baik", xp: 15 },
+    { text: "Lunges (10x per kaki)", detail: "Bentuk & kencangkan tubuh bawah", xp: 20 },
+    { text: "Mountain climbers (30 detik)", detail: "Cardio blast + lemak terbakar", xp: 25 }
+  ],
+  night: [
+    { text: "Digital detox (no HP)", detail: "Turunkan kortisol & tidur lebih baik", xp: 15 },
+    { text: "Siapkan baju & perlengkapan besok", detail: "Kurangi stres pagi hari", xp: 10 },
+    { text: "Journaling / mind dump", detail: "Lepaskan pikiran, tidur nyenyak", xp: 15 },
+    { text: "Pernapasan 4-7-8 (3 putaran)", detail: "Aktiasi sistem saraf parasimpatis", xp: 10 }
+  ]
+};
+
+const QUOTES = [
+  "Tidak ada yang bisa mengubah takdirmu kecuali kamu sendiri, mulai hari ini.",
+  "Setiap rep, setiap langkah, setiap pilihan sehat — semua terhitung.",
+  "Tubuh mencapai apa yang pikiran percayai.",
+  "Kamu tidak perlu sempurna. Kamu hanya perlu konsisten.",
+  "Hari ini lebih baik dari kemarin. Besok lebih baik dari hari ini.",
+  "Lemak itu tidak hilang dalam semalam — tapi kebiasaanmu bisa terbentuk hari ini.",
+  "Rasa lelah itu sementara. Kebanggaan pada dirimu sendiri itu selamanya.",
+];
+
+const XP_PER_LEVEL = 100;
+const LEVELS = ["Pemula", "Aktif", "Disiplin", "Juara", "Warrior", "Elite", "Legend"];
+
+function getState() {
+  try { return JSON.parse(localStorage.getItem('rm_state') || 'null') || defaultState(); } catch(e) { return defaultState(); }
+}
+function defaultState() {
+  return { totalXp: 0, streak: 0, lastDate: null, history: [], weights: [], checks: {}, dayDone: false };
+}
+function saveState(s) { localStorage.setItem('rm_state', JSON.stringify(s)); }
+
+function todayStr() { return new Date().toLocaleDateString('id-ID', {weekday:'short', day:'numeric', month:'short', year:'numeric'}); }
+function todayKey() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; }
+
+let state;
+
+function init() {
+  state = getState();
+  const today = todayKey();
+  if (!state.checks[today]) state.checks[today] = {};
+  renderAll();
+}
+
+function renderAll() {
+  renderTasks('morning'); renderTasks('workout'); renderTasks('night');
+  updateHeroXP(); updateTopStats();
+  renderStreakGrid(); renderLogScreen(); renderStatsScreen();
+  updateDoneButton();
+  document.getElementById('daily-quote').textContent = QUOTES[new Date().getDay() % QUOTES.length];
+}
+
+function renderTasks(group) {
+  const container = document.getElementById(`tasks-${group}`);
+  const today = todayKey();
+  const checks = state.checks[today] || {};
+  container.innerHTML = TASKS[group].map((t, i) => {
+    const key = `${group}-${i}`;
+    const done = !!checks[key];
+    return `<div class="task-row" onclick="toggleTask('${group}',${i})">
+      <div class="task-check ${done ? 'done' : ''}">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="task-text ${done ? 'done' : ''}">
+        <div>${t.text}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">${t.detail}</div>
+      </div>
+      <div class="task-xp">+${t.xp} XP</div>
+    </div>`;
+  }).join('');
+  updateGroupProgress(group);
+}
+
+function toggleTask(group, idx) {
+  const today = todayKey();
+  if (!state.checks[today]) state.checks[today] = {};
+  const key = `${group}-${idx}`;
+  const wasDone = !!state.checks[today][key];
+  state.checks[today][key] = !wasDone;
+  
+  const xp = TASKS[group][idx].xp;
+  const prevLevel = getLevel(state.totalXp);
+  if (!wasDone) { state.totalXp += xp; showToast(`+${xp} XP 🔥`); }
+  else { state.totalXp = Math.max(0, state.totalXp - xp); }
+  
+  const newLevel = getLevel(state.totalXp);
+  saveState(state);
+  renderTasks(group);
+  updateHeroXP();
+  updateTopStats();
+  updateDoneButton();
+  if (newLevel > prevLevel) triggerLevelUp(newLevel);
+}
+
+function updateGroupProgress(group) {
+  const today = todayKey();
+  const checks = state.checks[today] || {};
+  const total = TASKS[group].length;
+  const done = Object.keys(checks).filter(k => k.startsWith(group) && checks[k]).length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById(`prog-${group}`).textContent = `${done}/${total}`;
+  document.getElementById(`bar-${group}`).style.width = pct + '%';
+}
+
+function getLevel(xp) { return Math.min(Math.floor(xp / XP_PER_LEVEL), LEVELS.length - 1); }
+
+function updateHeroXP() {
+  const xp = state.totalXp;
+  const level = getLevel(xp);
+  const levelXp = xp % XP_PER_LEVEL;
+  document.getElementById('xp-fill').style.width = levelXp + '%';
+  document.getElementById('xp-text').textContent = `${levelXp} / ${XP_PER_LEVEL} XP`;
+  document.getElementById('level-badge').textContent = `LVL ${level + 1}`;
+  document.getElementById('player-name').textContent = `${LEVELS[level]} 🔥`;
+}
+
+function updateTopStats() {
+  const today = todayKey();
+  const checks = state.checks[today] || {};
+  const totalTasks = TASKS.morning.length + TASKS.workout.length + TASKS.night.length;
+  const done = Object.values(checks).filter(Boolean).length;
+  document.getElementById('done-val').textContent = `${done}/${totalTasks}`;
+  document.getElementById('streak-val').textContent = state.streak;
+  document.getElementById('total-xp-val').textContent = state.totalXp;
+}
+
+function updateDoneButton() {
+  const today = todayKey();
+  const checks = state.checks[today] || {};
+  const totalTasks = TASKS.morning.length + TASKS.workout.length + TASKS.night.length;
+  const done = Object.values(checks).filter(Boolean).length;
+  const btn = document.getElementById('btn-done');
+  btn.disabled = done === 0 || state.dayDone;
+  if (state.dayDone) btn.textContent = '✅ Hari Ini Sudah Selesai!';
+  else btn.textContent = `Selesaikan Hari Ini ⚡ (${done}/${totalTasks})`;
+}
+
+function markDayComplete() {
+  const today = todayKey();
+  const checks = state.checks[today] || {};
+  const done = Object.values(checks).filter(Boolean).length;
+  if (done === 0) return;
+
+  const totalTasks = TASKS.morning.length + TASKS.workout.length + TASKS.night.length;
+  const isPerfect = done === totalTasks;
+  const dateStr = todayStr();
+
+  state.history.unshift({ date: dateStr, done, total: totalTasks, perfect: isPerfect, key: today });
+  state.dayDone = true;
+
+  const lastDate = state.lastDate;
+  const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+  if (lastDate) {
+    const last = new Date(lastDate); last.setHours(0,0,0,0);
+    const diff = Math.round((todayDate - last) / 86400000);
+    if (diff === 1) state.streak++;
+    else if (diff > 1) state.streak = 1;
+  } else { state.streak = 1; }
+  state.lastDate = todayDate.toISOString();
+
+  saveState(state);
+  renderAll();
+  showToast(isPerfect ? '🏆 PERFECT DAY! Luar biasa!' : '✅ Hari ini dicatat!');
+}
+
+function resetDay() {
+  if (!confirm('Reset progress hari ini?')) return;
+  const today = todayKey();
+  state.checks[today] = {};
+  state.dayDone = false;
+  saveState(state);
+  renderAll();
+}
+
+function renderStreakGrid() {
+  const grid = document.getElementById('streak-grid');
+  const today = new Date();
+  const day = today.getDay();
+  const offset = (day + 6) % 7;
+  const cells = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const isToday = i === 0;
+    const hasDone = state.history.some(h => h.key === key);
+    cells.push(`<div class="streak-day ${hasDone ? 'done' : ''} ${isToday ? 'today' : ''}">${d.getDate()}</div>`);
+  }
+  grid.innerHTML = cells.join('');
+}
+
+function renderLogScreen() {
+  const list = document.getElementById('log-list');
+  if (!state.history.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Belum ada riwayat.<br>Mulai hari ini!</div>`;
+    return;
+  }
+  list.innerHTML = state.history.slice(0, 30).map(h => `
+    <div class="log-item">
+      <div>
+        <div class="log-date">${h.date}</div>
+        <div class="log-meta">${h.done} dari ${h.total} task selesai</div>
+      </div>
+      <span class="log-badge ${h.perfect ? 'perfect' : 'partial'}">${h.perfect ? '🏆 Perfect' : `${Math.round((h.done/h.total)*100)}%`}</span>
+    </div>`).join('');
+}
+
+function renderStatsScreen() {
+  const days = state.history.length;
+  document.getElementById('stat-days').textContent = days;
+  document.getElementById('stat-cal').textContent = state.history.filter(h => h.done >= TASKS.workout.length).length * 250;
+
+  const bars = document.getElementById('chart-bars');
+  const lbls = document.getElementById('chart-labels');
+  const recent = state.history.slice(0, 7).reverse();
+  bars.innerHTML = recent.map(h => {
+    const pct = Math.round((h.done / h.total) * 100);
+    const height = Math.max(4, Math.round(pct * 0.6));
+    return `<div class="chart-bar" style="height:${height}px;opacity:${0.4 + pct*0.006}"></div>`;
+  }).join('') || `<div style="font-size:11px;color:var(--muted);padding:8px 0">Belum ada data</div>`;
+  lbls.innerHTML = recent.map(h => {
+    const d = h.date.split(', ')[0];
+    return `<div class="chart-label">${d}</div>`;
+  }).join('');
+
+  const ws = state.weights;
+  if (ws.length) {
+    document.getElementById('weight-start').textContent = ws[ws.length-1].v + ' kg';
+    document.getElementById('weight-now').textContent = ws[0].v + ' kg';
+    const diff = ws[0].v - ws[ws.length-1].v;
+    const sign = diff <= 0 ? '' : '+';
+    document.getElementById('weight-diff').textContent = sign + diff.toFixed(1) + ' kg';
+    document.getElementById('weight-diff').style.color = diff <= 0 ? 'var(--green)' : 'var(--red)';
+  }
+  const wh = document.getElementById('weight-history');
+  wh.innerHTML = ws.slice(0,5).map(w => `
+    <div class="weight-entry"><span class="weight-date">${w.date}</span><span>${w.v} kg</span></div>`).join('');
+}
+
+function logWeight() {
+  const input = document.getElementById('weight-input');
+  const v = parseFloat(input.value);
+  if (!v || v < 20 || v > 300) { showToast('Masukkan berat yang valid'); return; }
+  state.weights.unshift({ v: +v.toFixed(1), date: todayStr() });
+  input.value = '';
+  saveState(state);
+  renderStatsScreen();
+  showToast('Berat dicatat! 📝');
+}
+
+function showScreen(name) {
+  ['home','log','stats'].forEach(s => {
+    document.getElementById(`screen-${s}`).classList.toggle('active', s === name);
+    document.getElementById(`nav-${s}`).classList.toggle('active', s === name);
+  });
+  if (name === 'log') renderLogScreen();
+  if (name === 'stats') renderStatsScreen();
+}
+
+function toggleCard(group) {
+  const body = document.getElementById(`body-${group}`);
+  body.classList.toggle('open');
+}
+
+function getLevel(xp) { return Math.min(Math.floor(xp / XP_PER_LEVEL), LEVELS.length - 1); }
+
+function triggerLevelUp(level) {
+  document.getElementById('levelup-title').textContent = `Level ${level + 1} — ${LEVELS[level]}!`;
+  document.getElementById('levelup-sub').textContent = `Kamu semakin kuat! Terus pertahankan ritme ini.`;
+  document.getElementById('levelup-modal').classList.add('show');
+}
+function closeLevelUp() { document.getElementById('levelup-modal').classList.remove('show'); }
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+init();
+</script>
