@@ -3,496 +3,1020 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Warrior Routine Pro | Discipline is Freedom</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Warrior Routine Pro</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        
         :root {
-            --bg: #030712;
-            --card: rgba(17, 24, 39, 0.7);
-            --accent: #6366f1;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --bg: #07080f;
+            --surface: #0f1117;
+            --card: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.07);
+            --accent: #e8ff47;
+            --accent-dim: rgba(232,255,71,0.12);
+            --red: #ff4d4d;
+            --red-dim: rgba(255,77,77,0.12);
+            --blue: #4da6ff;
+            --blue-dim: rgba(77,166,255,0.12);
+            --amber: #ffb347;
+            --amber-dim: rgba(255,179,71,0.12);
+            --text: #f0f0f0;
+            --muted: #6b7280;
+            --radius: 20px;
         }
 
-        body { 
-            background-color: var(--bg); 
-            color: #f9fafb; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #030712 100%);
-            background-attachment: fixed;
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 90px;
+            overflow-x: hidden;
         }
 
-        .glass { 
-            background: var(--card); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 24px;
+        /* NOISE TEXTURE */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .nav-blur {
-            background: rgba(3, 7, 18, 0.8);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        /* TOP GLOW */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(232,255,71,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
-            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        main, header, nav { position: relative; z-index: 1; }
+
+        /* TYPOGRAPHY */
+        .display { font-family: 'Bebas Neue', cursive; letter-spacing: 1px; }
+
+        /* HEADER */
+        header {
+            padding: 52px 20px 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .header-left p { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
+        .header-left h1 { font-size: 26px; font-weight: 700; }
+        .level-pill {
+            background: var(--accent-dim);
+            border: 1.5px solid var(--accent);
+            border-radius: 100px;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 13px;
         }
 
-        .progress-fill {
-            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
+        /* SCREENS */
+        main { padding: 0 16px; max-width: 480px; margin: 0 auto; }
         .screen { display: none; }
-        .screen.active { display: block; animation: slideUp 0.4s ease-out; }
+        .screen.active { display: block; animation: rise 0.35s ease-out both; }
+        @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 14px;
         }
+        .card.highlight { border-color: var(--accent); background: var(--accent-dim); }
 
+        /* XP BAR */
+        .xp-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 100px; height: 8px; overflow: hidden; margin-top: 12px; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #b5ff00); border-radius: 100px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+
+        /* STAT GRID */
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+        .stat-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px 10px; text-align: center; }
+        .stat-item .val { font-size: 22px; font-weight: 800; display: block; }
+        .stat-item .lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-top: 2px; }
+
+        /* SECTION HEADER */
+        .section-head { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 12px; }
+        .section-title { display: flex; align-items: center; gap: 10px; }
+        .section-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .section-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .section-badge { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
+
+        /* TASK CARD */
         .task-card {
-            transition: all 0.2s ease;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: transform 0.15s ease, border-color 0.2s;
+            cursor: pointer;
         }
-        .task-card:active { transform: scale(0.97); }
+        .task-card:active { transform: scale(0.975); }
+        .task-card.done { border-color: rgba(232,255,71,0.3); background: rgba(232,255,71,0.04); }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
+        .task-main { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+        .task-check {
+            width: 26px; height: 26px; min-width: 26px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            transition: all 0.2s;
+            background: transparent;
+        }
+        .task-card.done .task-check { background: var(--accent); border-color: var(--accent); color: #000; }
+        .task-info { flex: 1; }
+        .task-name { font-size: 14px; font-weight: 600; }
+        .task-card.done .task-name { text-decoration: line-through; color: var(--muted); }
+        .task-subdesc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .task-xp { font-size: 11px; font-weight: 800; color: var(--accent); }
+        .task-expand-btn {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            color: var(--muted);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .task-expand-btn:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+
+        /* GUIDE PANEL */
+        .task-guide {
+            display: none;
+            padding: 0 16px 16px;
+            border-top: 1px solid var(--border);
+        }
+        .task-guide.open { display: block; animation: rise 0.25s ease-out; }
+        .guide-step {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .guide-step:last-child { border-bottom: none; }
+        .step-num {
+            width: 24px; height: 24px; min-width: 24px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800;
+            background: var(--accent-dim);
+            color: var(--accent);
+            margin-top: 1px;
+        }
+        .step-text { font-size: 13px; line-height: 1.6; color: #ccc; }
+        .step-text strong { color: var(--text); font-weight: 700; }
+
+        .guide-header { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }
+        .guide-tip { background: var(--accent-dim); border: 1px solid rgba(232,255,71,0.15); border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #ccc; line-height: 1.6; margin-top: 10px; }
+        .guide-tip strong { color: var(--accent); }
+
+        /* BUTTONS */
+        .btn-primary {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            box-shadow: 0 8px 24px rgba(232,255,71,0.2);
+        }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-primary:disabled { background: #2a2a2a; color: var(--muted); box-shadow: none; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 14px;
+            padding: 14px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-secondary:active { transform: scale(0.97); }
+
+        /* PROGRESS RINGS */
+        .ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .ring-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+
+        /* INPUT */
+        .input-field {
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            font-family: inherit;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus { border-color: var(--accent); }
+        .input-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; display: block; }
+
+        /* LOG ITEMS */
+        .log-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .log-date { font-size: 12px; font-weight: 700; color: var(--text); }
+        .log-sub { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-top: 3px; }
+        .log-pct { font-size: 28px; font-weight: 900; font-family: 'Bebas Neue', cursive; }
+
+        /* WEIGHT HISTORY */
+        .weight-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .weight-row:last-child { border-bottom: none; }
+        .weight-row .date { font-size: 12px; color: var(--muted); }
+        .weight-row .val { font-size: 15px; font-weight: 800; }
+
+        /* BOTTOM NAV */
+        nav {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+            background: rgba(7,8,15,0.92);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 10px 0 28px;
+        }
+        .nav-inner { max-width: 480px; margin: 0 auto; display: flex; justify-content: space-around; align-items: center; }
+        .nav-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; transition: all 0.2s; font-family: inherit; }
+        .nav-btn i { font-size: 20px; color: var(--muted); transition: color 0.2s; }
+        .nav-btn span { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); transition: color 0.2s; }
+        .nav-btn.active i, .nav-btn.active span { color: var(--accent); }
+
+        /* TOAST */
+        #toast {
+            position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-10px);
+            background: rgba(15,17,23,0.95);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 10px 20px;
+            font-size: 12px; font-weight: 700;
+            color: var(--text);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 999;
+            white-space: nowrap;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* GUIDE MODAL (full screen) */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: flex-end;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-sheet {
+            background: var(--surface);
+            border-radius: 28px 28px 0 0;
+            border-top: 1px solid var(--border);
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            padding: 20px 20px 60px;
+            animation: sheetUp 0.35s ease-out;
+        }
+        @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-drag { width: 40px; height: 4px; background: var(--border); border-radius: 100px; margin: 0 auto 20px; }
+        .modal-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+        .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+
+        .difficulty-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 100px; margin-bottom: 16px; }
+
+        .guide-section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+        .step-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
+        .step-num-big { width: 32px; height: 32px; min-width: 32px; border-radius: 10px; background: var(--accent-dim); border: 1px solid rgba(232,255,71,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: var(--accent); }
+        .step-body .step-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .step-body .step-desc { font-size: 12px; color: #aaa; line-height: 1.6; }
+
+        .common-mistake { background: var(--red-dim); border: 1px solid rgba(255,77,77,0.2); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; font-size: 12px; line-height: 1.6; }
+        .common-mistake strong { color: var(--red); }
+
+        .beginner-tip { background: var(--accent-dim); border: 1px solid rgba(232,255,71,0.2); border-radius: 12px; padding: 12px 14px; font-size: 12px; line-height: 1.6; color: #ddd; }
+        .beginner-tip strong { color: var(--accent); }
+
+        .close-modal-btn { position: sticky; bottom: 0; background: var(--accent); color: #000; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; border: none; border-radius: 14px; padding: 16px; width: 100%; cursor: pointer; font-family: inherit; margin-top: 20px; }
+
+        /* COMPLETION BANNER */
+        .done-banner { background: linear-gradient(135deg, rgba(232,255,71,0.15), rgba(232,255,71,0.05)); border: 1px solid rgba(232,255,71,0.3); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 14px; }
+        .done-banner .big { font-family: 'Bebas Neue', cursive; font-size: 36px; color: var(--accent); line-height: 1; }
+        .done-banner .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+
+        /* MISC */
+        .divider { height: 1px; background: var(--border); margin: 20px 0; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+        .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
+        .empty-state p { font-size: 14px; }
     </style>
 </head>
-<body class="pb-28">
+<body>
 
-    <header class="p-6 flex justify-between items-center max-w-md mx-auto">
-        <div>
-            <p class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Elite Tracker</p>
-            <h1 class="text-2xl font-extrabold tracking-tight" id="user-display">Warrior Farid</h1>
-        </div>
-        <div class="relative">
-            <div id="level-badge" class="w-12 h-12 glass flex items-center justify-center border-2 border-indigo-500 text-lg font-black text-indigo-400 shadow-lg shadow-indigo-500/20">
-                1
+<header>
+    <div class="header-left">
+        <p>Elite Tracker</p>
+        <h1 id="user-display">Warrior Farid</h1>
+    </div>
+    <div class="level-pill">
+        <i class="fas fa-bolt" style="font-size:12px"></i>
+        LVL <span id="level-num">1</span>
+    </div>
+</header>
+
+<main>
+
+    <!-- HOME SCREEN -->
+    <div id="screen-home" class="screen active">
+
+        <!-- XP + Day Status -->
+        <div class="card" style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span style="font-size:12px;color:var(--muted);font-weight:600">Level Progress</span>
+                <span style="font-size:12px;font-weight:800" id="xp-label">0 / 100 XP</span>
             </div>
-        </div>
-    </header>
-
-    <main class="px-6 max-w-md mx-auto">
-
-        <div id="screen-home" class="screen active space-y-6">
-            
-            <div class="glass p-6 relative overflow-hidden">
-                <div class="flex justify-between items-end mb-4">
-                    <div class="space-y-1">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Level Progress</p>
-                        <p class="text-sm font-bold" id="xp-label">0 / 100 XP</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Status BMI</p>
-                        <p class="text-xs font-black text-indigo-300" id="bmi-label">Hitung Berat...</p>
-                    </div>
-                </div>
-                <div class="w-full bg-gray-800/50 h-3 rounded-full overflow-hidden mb-2">
-                    <div id="xp-bar" class="progress-fill bg-gradient-to-r from-indigo-500 to-purple-500 h-full w-0"></div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-3">
-                <div class="glass p-4 text-center">
-                    <i class="fas fa-fire text-orange-500 mb-1"></i>
-                    <p class="text-xl font-black block" id="stat-streak">0</p>
-                    <p class="text-[9px] text-gray-400 uppercase font-bold">Streak</p>
-                </div>
-                <div class="glass p-4 text-center border-b-2 border-emerald-500">
-                    <i class="fas fa-check-circle text-emerald-500 mb-1"></i>
-                    <p class="text-xl font-black block" id="stat-done">0/13</p>
-                    <p class="text-[9px] text-gray-400 uppercase font-bold">Misi</p>
-                </div>
-                <div class="glass p-4 text-center">
-                    <i class="fas fa-weight text-blue-400 mb-1"></i>
-                    <p class="text-xl font-black block" id="stat-weight">--</p>
-                    <p class="text-[9px] text-gray-400 uppercase font-bold">Target</p>
-                </div>
-            </div>
-
-            <div class="space-y-8">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-black text-indigo-300 flex items-center">
-                            <span class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center mr-2">
-                                <i class="fas fa-sun text-xs"></i>
-                            </span>
-                            MORNING RITUAL
-                        </h3>
-                        <span class="text-[10px] bg-indigo-500/10 text-indigo-300 px-2 py-1 rounded-md" id="count-morning">0/4</span>
-                    </div>
-                    <div id="list-morning" class="space-y-3"></div>
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-black text-rose-400 flex items-center">
-                            <span class="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center mr-2">
-                                <i class="fas fa-dumbbell text-xs"></i>
-                            </span>
-                            BEDROOM WORKOUT
-                        </h3>
-                        <span class="text-[10px] bg-rose-500/10 text-rose-300 px-2 py-1 rounded-md" id="count-workout">0/5</span>
-                    </div>
-                    <div id="list-workout" class="space-y-3"></div>
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-black text-amber-400 flex items-center">
-                            <span class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center mr-2">
-                                <i class="fas fa-moon text-xs"></i>
-                            </span>
-                            NIGHT RECOVERY
-                        </h3>
-                        <span class="text-[10px] bg-amber-500/10 text-amber-300 px-2 py-1 rounded-md" id="count-night">0/4</span>
-                    </div>
-                    <div id="list-night" class="space-y-3"></div>
-                </div>
-            </div>
-
-            <div class="pt-4 pb-10">
-                <button onclick="finalizeDay()" id="btn-finalize" class="btn-primary w-full py-5 rounded-3xl font-extrabold text-sm tracking-widest uppercase transition-all active:scale-95 disabled:grayscale">
-                    Selesaikan Misi & Claim XP ⚡
-                </button>
+            <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:12px">
+                <span style="font-size:10px;color:var(--muted)">Total XP: <strong id="total-xp-display" style="color:var(--text)">0</strong></span>
+                <span style="font-size:10px;color:var(--muted)">BMI: <strong id="bmi-label" style="color:var(--accent)">—</strong></span>
             </div>
         </div>
 
-        <div id="screen-stats" class="screen space-y-6">
-            <h2 class="text-xl font-black">Performance Body</h2>
-            
-            <div class="glass p-6 space-y-6">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">Update Berat Badan (kg)</label>
-                    <div class="flex gap-3">
-                        <input type="number" id="input-weight" placeholder="85.0" class="flex-1 bg-gray-900/50 border border-gray-700 rounded-2xl px-4 py-4 text-xl font-bold focus:outline-none focus:border-indigo-500">
-                        <button onclick="updateWeight()" class="btn-primary px-6 rounded-2xl font-bold">Simpan</button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="p-4 bg-gray-900/30 rounded-2xl border border-gray-800">
-                        <p class="text-[9px] text-gray-500 font-bold uppercase mb-1">BMI Saat Ini</p>
-                        <p class="text-2xl font-black text-white" id="stat-bmi-num">--</p>
-                    </div>
-                    <div class="p-4 bg-gray-900/30 rounded-2xl border border-gray-800">
-                        <p class="text-[9px] text-gray-500 font-bold uppercase mb-1">Loss Progress</p>
-                        <p class="text-2xl font-black text-emerald-400" id="stat-loss">0.0 kg</p>
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">History Berat</p>
-                    <div id="weight-list" class="space-y-2"></div>
-                </div>
+        <!-- Stats -->
+        <div class="stat-grid">
+            <div class="stat-item">
+                <i class="fas fa-fire" style="color:#ff6b35;font-size:16px;margin-bottom:4px"></i>
+                <span class="val" id="stat-streak">0</span>
+                <span class="lbl">Streak</span>
             </div>
-
-            <div class="glass p-6">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 italic">"Satu-satunya hari buruk adalah hari di mana kamu tidak berlatih."</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center">
-                        <i class="fas fa-quote-left text-xs text-white"></i>
-                    </div>
-                    <p class="text-sm font-medium text-gray-300" id="quote-display"></p>
-                </div>
+            <div class="stat-item" style="border-color:rgba(232,255,71,0.2)">
+                <i class="fas fa-check-circle" style="color:var(--accent);font-size:16px;margin-bottom:4px"></i>
+                <span class="val" id="stat-done">0/13</span>
+                <span class="lbl">Misi</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-weight" style="color:var(--blue);font-size:16px;margin-bottom:4px"></i>
+                <span class="val" id="stat-weight">68</span>
+                <span class="lbl">Target kg</span>
             </div>
         </div>
 
-        <div id="screen-log" class="screen space-y-4">
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-black">History Warrior</h2>
-                <button onclick="resetAllData()" class="text-[10px] text-rose-500 font-bold uppercase">Reset Semua</button>
-            </div>
-            <div id="log-list" class="space-y-3"></div>
+        <!-- Day completed banner (hidden by default) -->
+        <div id="done-banner" class="done-banner" style="display:none">
+            <div class="big">MISI SELESAI!</div>
+            <div class="sub">Kamu luar biasa hari ini. Istirahat yang baik. ⚔️</div>
         </div>
 
-    </main>
+        <!-- MORNING -->
+        <div class="section-head">
+            <div class="section-title">
+                <div class="section-icon" style="background:rgba(255,200,60,0.12);color:#ffc83c"><i class="fas fa-sun"></i></div>
+                <span class="section-label" style="color:#ffc83c">Morning Ritual</span>
+            </div>
+            <span class="section-badge" style="background:rgba(255,200,60,0.1);color:#ffc83c" id="count-morning">0/4</span>
+        </div>
+        <div id="list-morning"></div>
 
-    <nav class="nav-blur fixed bottom-0 left-0 right-0 p-4 pb-8 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center px-6">
-            <button onclick="showScreen('home')" id="nav-home" class="flex flex-col items-center gap-1 text-indigo-500">
-                <i class="fas fa-bolt text-xl"></i>
-                <span class="text-[9px] font-black uppercase">Misi</span>
-            </button>
-            <button onclick="showScreen('log')" id="nav-log" class="flex flex-col items-center gap-1 text-gray-500">
-                <i class="fas fa-calendar-alt text-xl"></i>
-                <span class="text-[9px] font-black uppercase">History</span>
-            </button>
-            <button onclick="showScreen('stats')" id="nav-stats" class="flex flex-col items-center gap-1 text-gray-500">
-                <i class="fas fa-user text-xl"></i>
-                <span class="text-[9px] font-black uppercase">Profil</span>
+        <!-- WORKOUT -->
+        <div class="section-head">
+            <div class="section-title">
+                <div class="section-icon" style="background:var(--red-dim);color:var(--red)"><i class="fas fa-dumbbell"></i></div>
+                <span class="section-label" style="color:var(--red)">Bedroom Workout</span>
+            </div>
+            <span class="section-badge" style="background:var(--red-dim);color:var(--red)" id="count-workout">0/5</span>
+        </div>
+        <div id="list-workout"></div>
+
+        <!-- NIGHT -->
+        <div class="section-head">
+            <div class="section-title">
+                <div class="section-icon" style="background:var(--blue-dim);color:var(--blue)"><i class="fas fa-moon"></i></div>
+                <span class="section-label" style="color:var(--blue)">Night Recovery</span>
+            </div>
+            <span class="section-badge" style="background:var(--blue-dim);color:var(--blue)" id="count-night">0/4</span>
+        </div>
+        <div id="list-night"></div>
+
+        <div style="padding: 20px 0 10px">
+            <button class="btn-primary" onclick="finalizeDay()" id="btn-finalize">
+                Selesaikan Misi & Claim XP ⚡
             </button>
         </div>
-    </nav>
+    </div>
 
-    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-xs font-bold pointer-events-none opacity-0 transition-all z-[100] border-indigo-500/50 shadow-2xl shadow-indigo-500/20"></div>
+    <!-- LOG SCREEN -->
+    <div id="screen-log" class="screen">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;margin-top:4px">
+            <h2 style="font-size:22px;font-weight:800">History Warrior</h2>
+            <button onclick="resetAllData()" style="background:none;border:none;color:var(--red);font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;font-family:inherit">Reset</button>
+        </div>
+        <div id="log-list"></div>
+    </div>
 
-    <script>
-        // CONFIG & DATA
-        const CONFIG = {
-            height: 172, // Farid's height
-            targetWeight: 68,
-            xpPerLevel: 100,
-            tasks: {
-                morning: [
-                    { id: 'm1', text: 'Minum 500ml Air Putih', desc: 'Metabolism Kickstart', xp: 10 },
-                    { id: 'm2', text: 'Stretching Dinamis (10m)', desc: 'Siapkan Sendi', xp: 15 },
-                    { id: 'm3', text: 'Jemur Matahari (5m)', desc: 'Vitamin D & Circadian', xp: 10 },
-                    { id: 'm4', text: 'Planning 3 Prioritas', desc: 'Fokus Mental', xp: 15 }
-                ],
-                workout: [
-                    { id: 'w1', text: 'Bodyweight Squats (15x)', desc: 'Power Legs', xp: 20 },
-                    { id: 'w2', text: 'Push-ups (12x)', desc: 'Upper Strength', xp: 20 },
-                    { id: 'w3', text: 'Plank (45 Detik)', desc: 'Core Stability', xp: 15 },
-                    { id: 'w4', text: 'Lunges (10x per kaki)', desc: 'Balance & Tone', xp: 20 },
-                    { id: 'w5', text: 'Mountain Climbers (30s)', desc: 'Fat Burner', xp: 25 }
-                ],
-                night: [
-                    { id: 'n1', text: 'No HP (15m Sebelum Tidur)', desc: 'Melatonin Save', xp: 15 },
-                    { id: 'n2', text: 'Persiapan Alat Besok', desc: 'Reduce Friction', xp: 10 },
-                    { id: 'n3', text: 'Journaling Ringkas', desc: 'Mind Dump', xp: 15 },
-                    { id: 'n4', text: 'Deep Breathing (4-7-8)', desc: 'Saraf Parasimpatis', xp: 10 }
-                ]
+    <!-- STATS SCREEN -->
+    <div id="screen-stats" class="screen">
+        <h2 style="font-size:22px;font-weight:800;margin-bottom:20px;margin-top:4px">Performance</h2>
+
+        <div class="card">
+            <span class="input-label">Update Berat Badan (kg)</span>
+            <div style="display:flex;gap:10px">
+                <input type="number" id="input-weight" placeholder="85.0" class="input-field" style="flex:1">
+                <button onclick="updateWeight()" class="btn-secondary">Simpan</button>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+            <div class="card" style="padding:16px;margin:0">
+                <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:6px">BMI Saat Ini</div>
+                <div style="font-size:28px;font-weight:900" id="stat-bmi-num">—</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px" id="bmi-category">—</div>
+            </div>
+            <div class="card" style="padding:16px;margin:0">
+                <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:6px">Loss Progress</div>
+                <div style="font-size:28px;font-weight:900;color:var(--accent)" id="stat-loss">0.0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px">kilogram</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px">History Berat</div>
+            <div id="weight-list"></div>
+        </div>
+
+        <div class="card" style="background:var(--accent-dim);border-color:rgba(232,255,71,0.2)">
+            <div style="font-size:10px;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px">💡 Quote of the Day</div>
+            <p style="font-size:14px;line-height:1.7;color:#ddd" id="quote-display"></p>
+        </div>
+    </div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav>
+    <div class="nav-inner">
+        <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+            <i class="fas fa-bolt"></i>
+            <span>Misi</span>
+        </button>
+        <button class="nav-btn" id="nav-log" onclick="showScreen('log')">
+            <i class="fas fa-calendar-alt"></i>
+            <span>History</span>
+        </button>
+        <button class="nav-btn" id="nav-stats" onclick="showScreen('stats')">
+            <i class="fas fa-user"></i>
+            <span>Profil</span>
+        </button>
+    </div>
+</nav>
+
+<!-- WORKOUT GUIDE MODAL -->
+<div class="modal-overlay" id="guide-modal" onclick="closeGuideModal(event)">
+    <div class="modal-sheet" id="guide-sheet">
+        <div class="modal-drag"></div>
+        <div id="guide-content"></div>
+        <button class="close-modal-btn" onclick="closeModal()">Tutup Panduan</button>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const CONFIG = {
+    height: 172,
+    targetWeight: 68,
+    xpPerLevel: 100,
+    quotes: [
+        "Disiplin bukan tentang hukuman, tapi tentang perawatan diri.",
+        "Kamu tidak sedang melawan lemak, kamu sedang membangun karakter.",
+        "Motivasi membuatmu memulai. Kebiasaan membuatmu terus berjalan.",
+        "Hari ini sulit agar hari esok terasa lebih mudah.",
+        "Kamu tidak perlu sempurna. Kamu hanya perlu konsisten.",
+        "Tubuhmu mendengar semua yang kamu katakan padanya. Bicaralah dengan baik.",
+        "Setiap repetisi membentuk bukan hanya otot, tapi karakter."
+    ],
+    tasks: {
+        morning: [
+            {
+                id: 'm1', text: 'Minum 500ml Air Putih', desc: 'Metabolism Kickstart', xp: 10,
+                difficulty: 'Mudah',
+                guide: {
+                    intro: 'Minum air setelah bangun tidur adalah salah satu kebiasaan terpenting. Selama tidur tubuhmu mengalami dehidrasi ringan. Air membantu mengaktifkan sistem pencernaan dan metabolisme.',
+                    steps: [
+                        { title: 'Siapkan air malam sebelumnya', desc: 'Letakkan segelas atau botol air (min. 500ml) di meja samping tempat tidur sebelum tidur, agar mudah dijangkau saat bangun.' },
+                        { title: 'Minum segera setelah bangun', desc: 'Begitu alarm berbunyi dan kamu bangun, langsung raih airmu. Jangan tunda — jangan buka HP dulu.' },
+                        { title: 'Minum perlahan, 2–3 tegukan besar', desc: 'Jangan sekali teguk. Minum sekitar 2–3 tegukan besar per momen, beri jeda 5 detik antar tegukan agar tubuh menyerapnya lebih baik.' },
+                        { title: 'Habiskan 500ml dalam 5–10 menit', desc: 'Tidak harus langsung habis sekaligus. Kamu bisa habiskan selama kamu bersiap-siap untuk stretching.' }
+                    ],
+                    mistakes: ['Minum sambil tiduran — bisa tersedak. Duduk tegak terlebih dahulu.', 'Minum air es saat perut kosong — bisa menyebabkan kram. Gunakan air suhu ruangan.'],
+                    tip: '<strong>Untuk pemula:</strong> Mulai dari 250ml dulu jika terasa berat. Tingkatkan 50ml setiap minggu sampai capai 500ml.'
+                }
             },
-            quotes: [
-                "Disiplin bukan tentang hukuman, tapi tentang perawatan diri.",
-                "Kamu tidak sedang melawan lemak, kamu sedang membangun karakter.",
-                "Motivasi membuatmu memulai. Kebiasaan membuatmu terus berjalan.",
-                "Hari ini sulit agar hari esok terasa lebih mudah."
-            ]
-        };
-
-        // STATE
-        let state = JSON.parse(localStorage.getItem('warrior_pro_data')) || {
-            totalXp: 0,
-            streak: 0,
-            lastFinalized: null,
-            history: [],
-            weights: [],
-            checks: {} // key: YYYY-MM-DD
-        };
-
-        const getToday = () => new Date().toISOString().split('T')[0];
-
-        function save() {
-            localStorage.setItem('warrior_pro_data', JSON.stringify(state));
-            render();
-        }
-
-        // CORE ACTIONS
-        function toggleTask(id, xp) {
-            const today = getToday();
-            if (!state.checks[today]) state.checks[today] = [];
-            
-            const idx = state.checks[today].indexOf(id);
-            if (idx > -1) {
-                state.checks[today].splice(idx, 1);
-                state.totalXp -= xp;
-            } else {
-                state.checks[today].push(id);
-                state.totalXp += xp;
-                showToast(`+${xp} XP Gained! 🔥`);
-            }
-            save();
-        }
-
-        function finalizeDay() {
-            const today = getToday();
-            const checked = state.checks[today]?.length || 0;
-            if (checked === 0) return showToast("Selesaikan minimal 1 misi!");
-
-            if (state.lastFinalized === today) return;
-
-            // Confetti
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6366f1', '#10b981', '#f59e0b'] });
-
-            // Streak logic
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yestKey = yesterday.toISOString().split('T')[0];
-
-            if (state.lastFinalized === yestKey) state.streak++;
-            else state.streak = 1;
-
-            state.history.unshift({
-                date: today,
-                count: checked,
-                total: 13,
-                xp: checked * 10 
-            });
-
-            state.lastFinalized = today;
-            showToast("DAY COMPLETED! Warrior Spirit! ⚔️");
-            save();
-        }
-
-        function updateWeight() {
-            const val = document.getElementById('input-weight').value;
-            if (!val || val < 30 || val > 200) return showToast("Input berat tidak valid!");
-            
-            state.weights.unshift({
-                val: parseFloat(val).toFixed(1),
-                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
-                rawDate: new Date().toISOString()
-            });
-            
-            document.getElementById('input-weight').value = '';
-            showToast("Berat badan diperbarui! ⚖️");
-            save();
-        }
-
-        // RENDER LOGIC
-        function render() {
-            const today = getToday();
-            const checks = state.checks[today] || [];
-            
-            // Leveling
-            const lvl = Math.floor(state.totalXp / CONFIG.xpPerLevel) + 1;
-            const xpInLvl = state.totalXp % CONFIG.xpPerLevel;
-            
-            document.getElementById('level-badge').innerText = lvl;
-            document.getElementById('xp-label').innerText = `${xpInLvl} / ${CONFIG.xpPerLevel} XP`;
-            document.getElementById('xp-bar').style.width = `${xpInLvl}%`;
-
-            // Stats
-            document.getElementById('stat-streak').innerText = state.streak;
-            document.getElementById('stat-done').innerText = `${checks.length}/13`;
-            document.getElementById('stat-weight').innerText = `${CONFIG.targetWeight}kg`;
-
-            // Routine Lists
-            renderList('list-morning', CONFIG.tasks.morning, checks, 'count-morning');
-            renderList('list-workout', CONFIG.tasks.workout, checks, 'count-workout');
-            renderList('list-night', CONFIG.tasks.night, checks, 'count-night');
-
-            // BMI Calculations
-            if (state.weights.length > 0) {
-                const currentW = state.weights[0].val;
-                const bmi = (currentW / ((CONFIG.height/100)**2)).toFixed(1);
-                document.getElementById('stat-bmi-num').innerText = bmi;
-                document.getElementById('bmi-label').innerText = `BMI: ${bmi} (${getBMICat(bmi)})`;
-                
-                if (state.weights.length > 1) {
-                    const startW = state.weights[state.weights.length - 1].val;
-                    const loss = (startW - currentW).toFixed(1);
-                    document.getElementById('stat-loss').innerText = `${loss > 0 ? '-' : '+'}${Math.abs(loss)} kg`;
-                    document.getElementById('stat-loss').className = `text-2xl font-black ${loss >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            {
+                id: 'm2', text: 'Stretching Dinamis (10 menit)', desc: 'Siapkan Sendi', xp: 15,
+                difficulty: 'Mudah',
+                guide: {
+                    intro: 'Stretching dinamis berbeda dengan stretching statis. Kamu menggerakkan tubuh secara aktif untuk memanaskan sendi dan otot, bukan menahan posisi.',
+                    steps: [
+                        { title: 'Neck Roll — 30 detik', desc: 'Putar kepala perlahan membentuk lingkaran besar. 3x searah jarum jam, 3x berlawanan. Lakukan perlahan, jangan dipaksa.' },
+                        { title: 'Arm Circle — 30 detik', desc: 'Rentangkan kedua tangan ke samping. Putar ke depan 10x, lalu ke belakang 10x. Mulai dari lingkaran kecil, perbesar secara bertahap.' },
+                        { title: 'Hip Circle — 30 detik', desc: 'Tangan di pinggang, putar pinggul membentuk lingkaran besar. 10x ke kiri, 10x ke kanan. Bayangkan hula hoop.' },
+                        { title: 'Leg Swing — 30 detik', desc: 'Pegang dinding untuk keseimbangan. Ayunkan satu kaki ke depan dan belakang seperti pendulum. 10x tiap kaki.' },
+                        { title: 'High Knees — 1 menit', desc: 'Angkat lutut setinggi pinggang bergantian, sambil jalan di tempat. Gerakkan tangan seperti berlari. Lakukan perlahan jika pemula.' },
+                        { title: 'Torso Twist — 30 detik', desc: 'Kaki selebar bahu, tangan di depan. Putar badan ke kiri dan kanan bergantian. Pandangan ikut berputar.' },
+                        { title: 'Ankle Circle — 30 detik', desc: 'Duduk atau berdiri. Angkat satu kaki, putar pergelangan kaki. 10x tiap kaki tiap arah.' }
+                    ],
+                    mistakes: ['Tergesa-gesa dan asal gerak. Stretching harus perlahan dan terkontrol.', 'Menahan napas. Napas harus tetap normal dan rileks sepanjang stretching.'],
+                    tip: '<strong>Tips pemula:</strong> Kalau ada bagian yang terasa kaku atau nyeri, pelankan gerakannya. Jangan dipaksakan. Sendi akan lebih lentur seiring waktu.'
+                }
+            },
+            {
+                id: 'm3', text: 'Jemur Matahari (5 menit)', desc: 'Vitamin D & Circadian', xp: 10,
+                difficulty: 'Mudah',
+                guide: {
+                    intro: 'Paparan sinar matahari pagi (sebelum jam 9) adalah cara alami mendapatkan Vitamin D dan mengatur ritme sirkadian tubuh — yaitu jam biologis yang mengontrol kapan kamu merasa ngantuk atau segar.',
+                    steps: [
+                        { title: 'Keluar sebelum jam 9 pagi', desc: 'Sinar UV sebelum jam 9 masih aman dan kaya manfaat. Setelah jam 10 mulai berisiko untuk kulit.' },
+                        { title: 'Ekspos kulit secara langsung', desc: 'Gunakan baju pendek atau singlet. Semakin luas area kulit yang terkena sinar, semakin baik penyerapan Vitamin D.' },
+                        { title: 'Tatap langit (bukan matahari langsung)', desc: 'Jangan menatap matahari langsung. Cukup tatap arah langit terang untuk merangsang retina dan mengatur hormon sirkadian.' },
+                        { title: 'Berdiri atau duduk santai', desc: 'Tidak perlu pose khusus. Bisa sambil berdiri di teras, duduk di lantai, atau bahkan sambil minum air putinya.' },
+                        { title: 'Minimal 5 menit, ideal 10–15 menit', desc: 'Jika cuaca cerah, 5 menit sudah cukup. Kalau mendung, tambah durasi jadi 10–15 menit.' }
+                    ],
+                    mistakes: ['Jemur melalui kaca jendela — kaca memblokir sinar UV yang dibutuhkan.', 'Terlalu lama tanpa sunscreen setelah jam 10 — bisa merusak kulit.'],
+                    tip: '<strong>Bonus:</strong> Sambil jemur, coba lakukan pernapasan dalam 5x. Ini membantu aktivasi sistem saraf parasimpatis dan membuatmu lebih tenang sepanjang hari.'
+                }
+            },
+            {
+                id: 'm4', text: 'Planning 3 Prioritas', desc: 'Fokus Mental', xp: 15,
+                difficulty: 'Mudah',
+                guide: {
+                    intro: 'Menentukan 3 prioritas utama di pagi hari adalah teknik produktivitas yang digunakan oleh banyak CEO dan atlet elit. Ini membantu otakmu fokus pada hal yang benar-benar penting.',
+                    steps: [
+                        { title: 'Ambil kertas/buku kecil atau buka notes HP', desc: 'Tulis secara fisik atau digital. Tulis tangan lebih baik karena meningkatkan memori dan komitmen.' },
+                        { title: 'Tulis 3 hal yang WAJIB selesai hari ini', desc: 'Bukan daftar to-do panjang. Hanya 3. Pilih yang paling berdampak besar jika diselesaikan hari ini.' },
+                        { title: 'Format: Nomor + Kata Kerja + Hasil', desc: 'Contoh: "1. Belajar materi X sampai bab 3. 2. Kirim email ke bu Rini. 3. Olahraga 30 menit." Spesifik, ada kata kerja, ada target.' },
+                        { title: 'Baca ulang 3x dengan suara', desc: 'Membaca keras-keras memprogramkan otak lebih kuat daripada sekadar membacanya dalam hati.' },
+                        { title: 'Letakkan di tempat yang terlihat', desc: 'Taruh di meja belajar, tempel di dinding, atau jadikan wallpaper. Visibilitas tinggi = komitmen lebih kuat.' }
+                    ],
+                    mistakes: ['Menulis lebih dari 3 prioritas. Itu bukan prioritas, itu panic list.', 'Menulis hal-hal yang tidak spesifik seperti "belajar" atau "produktif".'],
+                    tip: '<strong>Tips Farid:</strong> Tulis prioritas pertamamu adalah misi workout ini. Kalau itu sudah selesai, rasa percaya dirimu untuk menyelesaikan 2 tugas lainnya akan meningkat signifikan.'
                 }
             }
-
-            // History Screens
-            renderWeightHistory();
-            renderWarriorHistory();
-
-            // Button finalization
-            const btn = document.getElementById('btn-finalize');
-            if (state.lastFinalized === today) {
-                btn.disabled = true;
-                btn.innerText = "MISI HARI INI TELAH SELESAI ✅";
-                btn.className = "btn-primary w-full py-5 rounded-3xl font-extrabold text-sm tracking-widest uppercase opacity-50 grayscale cursor-not-allowed";
+        ],
+        workout: [
+            {
+                id: 'w1', text: 'Bodyweight Squats (15 reps)', desc: 'Power Legs', xp: 20,
+                difficulty: 'Menengah',
+                guide: {
+                    intro: 'Squat adalah raja latihan kaki. Gerakan ini melatih paha (quadriceps & hamstrings), bokong (glutes), dan juga melatih stabilitas inti. Sangat efektif untuk pembakaran kalori.',
+                    steps: [
+                        { title: 'Posisi awal — berdiri tegak', desc: 'Kaki selebar bahu atau sedikit lebih lebar. Jari kaki menghadap sedikit ke luar (sekitar 15–30 derajat). Tangan di depan dada atau rentangkan ke depan sebagai penyeimbang.' },
+                        { title: 'Tekuk lutut — turun perlahan', desc: 'Mulai tekuk lutut sambil mendorong pinggul ke belakang, seolah kamu mau duduk di kursi yang jauh di belakangmu. Turunkan badan selama 2 hitungan.' },
+                        { title: 'Kedalaman yang benar', desc: 'Minimal paha sejajar lantai (lutut membentuk sudut 90 derajat). Untuk pemula, turun sejauh yang nyaman dulu, tidak harus sempurna.' },
+                        { title: 'Cek posisi lutut', desc: 'Lutut harus searah jari kaki. Jangan sampai lutut "collapse" ke dalam. Bayangkan ada buku di antara lutut yang tidak boleh jatuh.' },
+                        { title: 'Berdiri kembali — dorong dari tumit', desc: 'Tekan tumit ke lantai untuk naik. Luruskan lutut sambil kencangkan otot bokong di atas. Naik selama 1 hitungan.' },
+                        { title: 'Pernapasan', desc: 'Tarik napas saat turun, hembuskan napas saat naik. Ini sangat penting untuk stabilitas inti.' }
+                    ],
+                    mistakes: ['Lutut melampaui jari kaki terlalu jauh — bisa cedera. Dorong pinggul ke belakang lebih banyak.', 'Tumit terangkat dari lantai — artinya engkel kurang fleksibel. Coba buka kaki lebih lebar atau taruh heels di atas buku tipis.', 'Membungkuk terlalu jauh ke depan — pertahankan dada tetap tegak.'],
+                    tip: '<strong>Untuk pemula:</strong> Mulai dengan 5 repetisi, istirahat 30 detik, ulangi 3 set. Baru tingkatkan ke 15 setelah seminggu.'
+                }
+            },
+            {
+                id: 'w2', text: 'Push-ups (12 reps)', desc: 'Upper Strength', xp: 20,
+                difficulty: 'Menengah',
+                guide: {
+                    intro: 'Push-up melatih dada (pectorals), bahu (deltoid), dan belakang lengan (triceps). Ini salah satu latihan paling komplet untuk tubuh bagian atas. Kuncinya ada di postur.',
+                    steps: [
+                        { title: 'Posisi plank awal', desc: 'Mulai dari posisi plank tinggi. Tangan sedikit lebih lebar dari bahu. Jari-jari menghadap ke depan atau sedikit ke luar.' },
+                        { title: 'Garis tubuh lurus', desc: 'Bayangkan ada batang lurus dari kepala ke tumit. Jangan angkat pantat terlalu tinggi atau biarkan pinggang melorot ke bawah.' },
+                        { title: 'Kencangkan inti & bokong', desc: 'Sebelum mulai, kencangkan otot perut dan bokong. Ini mencegah pinggang melorot dan melindungi tulang belakang.' },
+                        { title: 'Turun — siku membentuk 45 derajat', desc: 'Tekuk siku sehingga membentuk sudut sekitar 45 derajat dari badan (bukan melebar ke samping). Turunkan dada hampir menyentuh lantai.' },
+                        { title: 'Naik — dorong penuh', desc: 'Tekan lantai, luruskan siku. Di posisi atas, kencangkan dada dan bahu. Jangan kunci siku sepenuhnya.' },
+                        { title: 'Napas', desc: 'Tarik napas saat turun, hembuskan saat mendorong naik.' }
+                    ],
+                    mistakes: ['Siku terlalu melebar ke samping (seperti sayap) — bisa cedera bahu. Pertahankan 45 derajat dari badan.', 'Kepala menjuntai ke bawah — pandangan harus ke bawah-depan, leher netral.', 'Pantat naik seperti gunung — ini berarti kamu menghindari beban. Turunkan pinggul.'],
+                    tip: '<strong>Belum bisa full push-up?</strong> Lakukan dari lutut (knee push-up) dulu. Sama manfaatnya untuk pemula. Setelah 2 minggu, coba dari jari kaki.'
+                }
+            },
+            {
+                id: 'w3', text: 'Plank (45 detik)', desc: 'Core Stability', xp: 15,
+                difficulty: 'Menengah',
+                guide: {
+                    intro: 'Plank melatih seluruh otot inti (core) termasuk perut, punggung bawah, pinggul, dan bahu. Ini bukan soal seberapa lama kamu tahan, tapi seberapa baik posturnya.',
+                    steps: [
+                        { title: 'Posisi awal — dari siku atau tangan', desc: 'Plank dari siku (forearm plank) lebih mudah dari plank tangan. Untuk pemula, mulai dari forearm plank. Siku tepat di bawah bahu.' },
+                        { title: 'Kaki & tumit rapat', desc: 'Tumit bisa rapat atau sedikit terbuka. Yang penting garis tubuh tetap lurus dari kepala ke tumit.' },
+                        { title: 'Kencangkan seluruh tubuh', desc: 'Kencangkan perut (tarik pusar ke tulang belakang), kencangkan bokong, kencangkan paha. Bayangkan kamu sedang menahan "bodi kaku" seperti papan.' },
+                        { title: 'Pandangan ke bawah-depan', desc: 'Leher netral, jangan angkat kepala terlalu tinggi atau turunkan terlalu rendah. Pandangan sekitar 30 cm di depan siku.' },
+                        { title: 'Napas stabil selama 45 detik', desc: 'Napas harus tetap berjalan. Tarik napas dalam, hembuskan perlahan. Jangan tahan napas — ini akan membuat kamu cepat lelah dan pusing.' },
+                        { title: 'Hitung & bertahan', desc: 'Kalau sudah mulai gemetar tapi masih bisa napas normal, bertahanlah. Gemetar itu tanda otot sedang bekerja keras — itu bagus!' }
+                    ],
+                    mistakes: ['Pantat terlalu tinggi (jadi seperti pose yoga downdog) — turunkan pinggul.', 'Pinggang melorot ke bawah — ini berbahaya untuk tulang belakang. Kencangkan perut lebih kuat.', 'Menahan napas — rilekskan rahang dan tetap napas normal.'],
+                    tip: '<strong>Untuk pemula:</strong> Mulai dengan 15–20 detik, istirahat 10 detik, ulangi 2–3 kali. Total waktu yang sama. Tingkatkan 5 detik setiap 3 hari.'
+                }
+            },
+            {
+                id: 'w4', text: 'Lunges (10 reps per kaki)', desc: 'Balance & Tone', xp: 20,
+                difficulty: 'Menengah',
+                guide: {
+                    intro: 'Lunge melatih paha depan, paha belakang, bokong, dan otot stabilizer. Berbeda dengan squat, lunge juga melatih keseimbangan secara unilateral (satu kaki).',
+                    steps: [
+                        { title: 'Berdiri tegak, kaki rapat', desc: 'Posisi awal berdiri tegak, tangan di pinggang atau di samping badan. Pandangan ke depan.' },
+                        { title: 'Melangkah satu kaki ke depan', desc: 'Ambil satu langkah besar ke depan (sekitar 60–70 cm). Kaki yang melangkah adalah kaki kerja (front leg).' },
+                        { title: 'Turunkan lutut belakang ke lantai', desc: 'Tekuk kedua lutut serentak. Lutut belakang turun hampir menyentuh lantai (sekitar 2–5 cm dari lantai). Lutut depan membentuk 90 derajat.' },
+                        { title: 'Cek posisi lutut depan', desc: 'Lutut depan tidak boleh melampaui jari kaki. Kalau iya, perbesar langkahmu.' },
+                        { title: 'Berdiri kembali', desc: 'Tekan tumit kaki depan untuk berdiri kembali. Tarik kaki belakang ke posisi semula. Lakukan 10x untuk kaki kanan, baru ganti kaki kiri.' },
+                        { title: 'Variasi: Walking Lunge', desc: 'Daripada kembali ke posisi awal, langsung maju dengan kaki belakang. Ini lebih menantang tapi lebih efisien.' }
+                    ],
+                    mistakes: ['Langkah terlalu pendek — menyebabkan lutut depan melampaui jari kaki.', 'Badan condong ke depan — pertahankan dada tegak, badan vertikal.', 'Terburu-buru — lunge yang lambat dan terkontrol lebih efektif dan aman.'],
+                    tip: '<strong>Untuk pemula:</strong> Pegang dinding atau kursi untuk bantuan keseimbangan. Sangat normal jika awalnya oleng — otot stabilizer membutuhkan waktu untuk berkembang.'
+                }
+            },
+            {
+                id: 'w5', text: 'Mountain Climbers (30 detik)', desc: 'Fat Burner', xp: 25,
+                difficulty: 'Sulit',
+                guide: {
+                    intro: 'Mountain Climber adalah latihan kardio + core yang sangat efektif. Dalam 30 detik, ini bisa membakar lebih banyak kalori daripada kebanyakan latihan lain. Jantungmu akan berdegup kencang — itu tandanya berhasil!',
+                    steps: [
+                        { title: 'Mulai dari posisi push-up / plank tinggi', desc: 'Posisi plank tangan (bukan siku). Tangan lurus di bawah bahu. Tubuh dalam satu garis lurus.' },
+                        { title: 'Tarik lutut kanan ke dada', desc: 'Gerakkan lutut kanan ke arah dada secara cepat, seolah sedang berlari di tempat. Kaki kiri tetap di belakang.' },
+                        { title: 'Ganti dengan lutut kiri', desc: 'Kembalikan kaki kanan sambil langsung membawa lutut kiri ke dada. Gerakan bergantian inilah yang disebut "climbing."' },
+                        { title: 'Pertahankan kecepatan', desc: 'Semakin cepat, semakin tinggi detak jantung, semakin banyak kalori terbakar. Tapi jangan sampai kehilangan postur.' },
+                        { title: 'Pinggul tetap stabil', desc: 'Jangan biarkan pinggul naik-turun atau goyang ke samping. Kunci inti sepanjang waktu.' },
+                        { title: 'Lakukan 30 detik non-stop', desc: 'Kalau belum sanggup 30 detik, lakukan 15 detik, istirahat 5 detik, lanjut 15 detik. Progress itu normal.' }
+                    ],
+                    mistakes: ['Pantat naik ke udara — ini mengurangi beban pada inti dan menyalahi postur.', 'Terlalu lambat seperti jogging — mountain climber harus cepat untuk efek kardio.', 'Tangan terlalu jauh dari bahu — taruh tangan tepat di bawah bahu.'],
+                    tip: '<strong>Level pemula:</strong> Lakukan di lantai yang tidak licin. Kalau masih terlalu sulit, gunakan meja/bangku yang kokoh sebagai tumpuan tangan (incline mountain climber) — ini jauh lebih mudah.'
+                }
             }
+        ],
+        night: [
+            {
+                id: 'n1', text: 'No HP 15 Menit Sebelum Tidur', desc: 'Melatonin Save', xp: 15,
+                difficulty: 'Menantang',
+                guide: {
+                    intro: 'Cahaya biru dari layar HP menekan produksi melatonin (hormon tidur) di otak. Akibatnya kamu sulit tidur, tidur tidak nyenyak, dan bangun tidak segar. 15 menit saja sudah berdampak besar.',
+                    steps: [
+                        { title: 'Set alarm 15 menit sebelum jam tidurmu', desc: 'Kalau biasa tidur jam 22.00, set alarm di 21.45 sebagai pengingat "HP time habis."' },
+                        { title: 'Taruh HP di tempat berbeda', desc: 'Jangan taruh HP di samping tempat tidur. Taruh di meja belajar, atau ruangan lain. Ini mencegah godaan untuk mengeceknya lagi.' },
+                        { title: 'Aktifkan Night Mode / Warm Display', desc: 'Jika terpaksa harus menggunakan HP, aktifkan mode malam (warm light / night shift) yang mengurangi cahaya biru.' },
+                        { title: 'Isi waktu 15 menit dengan hal lain', desc: 'Baca buku fisik, journaling, stretching ringan, atau sekadar berbaring dan merelaksasi tubuh.' }
+                    ],
+                    mistakes: ['"Cuma sebentar lagi" — ini adalah jebakan terbesar. Set timer dan patuhi.', 'Menonton video sebelum tidur — ini justru merangsang otak alih-alih menenangkannya.'],
+                    tip: '<strong>Trick:</strong> Ganti HP dengan buku di meja samping tempat tidurmu. Reflek "meraih sesuatu" tetap ada, tapi yang diraih adalah buku.'
+                }
+            },
+            {
+                id: 'n2', text: 'Persiapan Alat Besok', desc: 'Reduce Friction', xp: 10,
+                difficulty: 'Mudah',
+                guide: {
+                    intro: 'Menyiapkan semua yang dibutuhkan untuk hari esok sebelum tidur adalah strategi "mengurangi gesekan" (reduce friction). Semakin sedikit keputusan yang harus dibuat di pagi hari, semakin mudah kamu menjalankan rutinmu.',
+                    steps: [
+                        { title: 'Siapkan pakaian olahraga/aktivitas besok', desc: 'Letakkan di tempat yang mudah terlihat dan dijangkau. Ini mengurangi alasan "tidak jadi olahraga karena cari baju dulu."' },
+                        { title: 'Isi ulang botol air 500ml', desc: 'Isi dan taruh di samping tempat tidur untuk misi morning water pertama.' },
+                        { title: 'Siapkan buku/kertas untuk planning prioritas', desc: 'Taruh di meja atau samping tempat tidur bersama pena.' },
+                        { title: 'Cek agenda dan tugas besok (2 menit)', desc: 'Buka kalender atau catatan. Lihat sekilas apa yang akan terjadi besok. Ini membantu otak "settle" dan tidak memikirkannya saat tidur.' },
+                        { title: 'Rapikan area tidur', desc: 'Tempat tidur yang rapi = tidur yang lebih berkualitas. Lingkungan yang bersih menenangkan sistem saraf.' }
+                    ],
+                    mistakes: ['Menunda sampai merasa "ngantuk banget" — pada kondisi itu kamu sudah tidak sempat melakukan ini dengan baik.'],
+                    tip: '<strong>Prinsip 2 menit:</strong> Jika sesuatu bisa dilakukan dalam 2 menit, lakukan sekarang. Semua persiapan di atas total hanya 5–10 menit.'
+                }
+            },
+            {
+                id: 'n3', text: 'Journaling Ringkas', desc: 'Mind Dump', xp: 15,
+                difficulty: 'Mudah',
+                guide: {
+                    intro: 'Journaling bukan berarti menulis novel. Cukup 3–5 kalimat. Tujuannya: "membuang" pikiran dari kepalamu ke kertas agar otak bisa rileks dan tidak berputar-putar saat tidur.',
+                    steps: [
+                        { title: 'Ambil buku tulis kecil dan pena', desc: 'Gunakan buku khusus journaling. Jangan di HP — cahaya layar dan notifikasi akan mengganggu.' },
+                        { title: 'Tulis 1 hal yang berjalan baik hari ini', desc: 'Sekecil apapun. "Tadi aku minum 500ml air putih." Ini melatih otak fokus pada hal positif (gratitude brain).' },
+                        { title: 'Tulis 1 tantangan yang kamu hadapi', desc: 'Apa yang sulit hari ini? Menuliskannya membantu otak "menutup file" dan tidak terus memikirkannya.' },
+                        { title: 'Tulis 1 hal yang ingin kamu lakukan berbeda besok', desc: 'Bukan daftar penyesalan, tapi satu langkah perbaikan kecil. Ini memprogram otak untuk solusi, bukan masalah.' },
+                        { title: 'Tutup buku dan letakkan', desc: 'Tutup secara fisik. Ini simbol bahwa hari ini sudah selesai. Pikiranmu bisa beristirahat.' }
+                    ],
+                    mistakes: ['Membuat jurnal terlalu panjang dan kompleks — ini justru membuat otak lebih aktif.', 'Menulis hal-hal negatif saja tanpa bagian positif — ini memperburuk mood sebelum tidur.'],
+                    tip: '<strong>Format 3 kalimat:</strong> "Hari ini aku [hal baik]. Yang menantang adalah [tantangan]. Besok aku akan [perbaikan]." Itu sudah cukup!'
+                }
+            },
+            {
+                id: 'n4', text: 'Deep Breathing (4-7-8)', desc: 'Saraf Parasimpatis', xp: 10,
+                difficulty: 'Mudah',
+                guide: {
+                    intro: 'Teknik 4-7-8 dikembangkan oleh Dr. Andrew Weil dan terbukti secara ilmiah mengaktifkan sistem saraf parasimpatis — yaitu mode "rest and digest" yang kebalikan dari stres. Ini seperti tombol off untuk sistem stres tubuhmu.',
+                    steps: [
+                        { title: 'Posisi berbaring atau duduk nyaman', desc: 'Berbaring di tempat tidur adalah posisi terbaik. Letakkan satu tangan di dada, satu di perut.' },
+                        { title: 'Hembuskan napas penuh terlebih dahulu', desc: 'Hembuskan semua udara dari paru-paru melalui mulut dengan bunyi "whoosh." Ini mengosongkan paru-paru untuk siklus pertama.' },
+                        { title: 'Tarik napas selama 4 hitungan (hidung)', desc: 'Tarik napas dari hidung, hitung 1-2-3-4. Rasakan perut dan dada mengembang. Jangan tergesa.' },
+                        { title: 'Tahan napas selama 7 hitungan', desc: 'Tahan napas dengan mulut tertutup. Hitung 1-2-3-4-5-6-7. Ini adalah bagian krusialnya — oksigen masuk ke darah dan CO2 menumpuk yang memicu relaksasi.' },
+                        { title: 'Hembuskan selama 8 hitungan (mulut)', desc: 'Hembuskan melalui mulut dengan bunyi "whoosh" selama 8 hitungan penuh. Ini membuang CO2 dan sisa ketegangan.' },
+                        { title: 'Ulangi 4 kali siklus', desc: '4 siklus sudah cukup untuk merasakan efek relaksasi yang signifikan. Setelah itu, biarkan napas kembali normal dan tutup mata.' }
+                    ],
+                    mistakes: ['Hitungan terlalu cepat — gunakan hitungan mental yang konsisten, sekitar 1 detik per hitungan.', 'Hanya melakukan 1–2 siklus — efek terbesar dirasakan di siklus 3–4.'],
+                    tip: '<strong>Manfaat bonus:</strong> Teknik ini juga efektif saat kamu merasa cemas atau panik di siang hari. Bisa dilakukan kapan saja dan di mana saja.'
+                }
+            }
+        ]
+    }
+};
 
-            document.getElementById('quote-display').innerText = CONFIG.quotes[new Date().getDay() % CONFIG.quotes.length];
-        }
+let state = JSON.parse(localStorage.getItem('warrior_pro_v2')) || {
+    totalXp: 0, streak: 0, lastFinalized: null,
+    history: [], weights: [], checks: {}
+};
 
-        function renderList(containerId, data, checks, countId) {
-            const container = document.getElementById(containerId);
-            let done = 0;
-            container.innerHTML = data.map(t => {
-                const isChecked = checks.includes(t.id);
-                if (isChecked) done++;
-                return `
-                    <div onclick="toggleTask('${t.id}', ${t.xp})" class="task-card p-4 glass flex items-center justify-between border-l-4 ${isChecked ? 'border-indigo-500 bg-indigo-500/5' : 'border-transparent'}">
-                        <div class="flex items-center gap-4">
-                            <div class="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center ${isChecked ? 'bg-indigo-500 border-indigo-500 shadow-lg shadow-indigo-500/40' : ''}">
-                                ${isChecked ? '<i class="fas fa-check text-[10px]"></i>' : ''}
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold ${isChecked ? 'text-gray-400 line-through' : 'text-white'}">${t.text}</p>
-                                <p class="text-[10px] text-gray-500 font-medium">${t.desc}</p>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-black text-indigo-400">+${t.xp}</span>
-                    </div>
-                `;
-            }).join('');
-            document.getElementById(countId).innerText = `${done}/${data.length}`;
-        }
+const getToday = () => new Date().toISOString().split('T')[0];
+function save() { localStorage.setItem('warrior_pro_v2', JSON.stringify(state)); render(); }
 
-        function renderWeightHistory() {
-            const container = document.getElementById('weight-list');
-            container.innerHTML = state.weights.slice(0, 5).map(w => `
-                <div class="flex justify-between items-center text-xs py-3 border-b border-gray-800/50 px-2">
-                    <span class="text-gray-400 font-medium">${w.date}</span>
-                    <span class="font-bold text-white">${w.val} kg</span>
+// TOGGLE TASK
+function toggleTask(id, xp) {
+    const today = getToday();
+    if (!state.checks[today]) state.checks[today] = [];
+    const idx = state.checks[today].indexOf(id);
+    if (idx > -1) {
+        state.checks[today].splice(idx, 1);
+        state.totalXp = Math.max(0, state.totalXp - xp);
+    } else {
+        state.checks[today].push(id);
+        state.totalXp += xp;
+        showToast(`+${xp} XP 🔥`);
+    }
+    save();
+}
+
+// SHOW GUIDE
+function showGuide(id) {
+    const allTasks = [...CONFIG.tasks.morning, ...CONFIG.tasks.workout, ...CONFIG.tasks.night];
+    const task = allTasks.find(t => t.id === id);
+    if (!task || !task.guide) return;
+
+    const g = task.guide;
+    const diffColor = task.difficulty === 'Mudah' ? 'var(--accent)' : task.difficulty === 'Menengah' ? 'var(--amber)' : task.difficulty === 'Sulit' ? 'var(--red)' : 'var(--blue)';
+    const diffBg = task.difficulty === 'Mudah' ? 'var(--accent-dim)' : task.difficulty === 'Menengah' ? 'var(--amber-dim)' : task.difficulty === 'Sulit' ? 'var(--red-dim)' : 'var(--blue-dim)';
+
+    document.getElementById('guide-content').innerHTML = `
+        <div class="difficulty-badge" style="background:${diffBg};color:${diffColor}">
+            <i class="fas fa-signal" style="font-size:9px"></i> ${task.difficulty}
+        </div>
+        <div class="modal-title">${task.text}</div>
+        <div class="modal-sub">${task.desc}</div>
+
+        <p style="font-size:13px;line-height:1.8;color:#bbb;margin-bottom:16px">${g.intro}</p>
+
+        <div class="guide-section-title"><i class="fas fa-list-ol" style="font-size:10px"></i> Langkah-Langkah</div>
+        ${g.steps.map((s, i) => `
+            <div class="step-card">
+                <div class="step-num-big">${i + 1}</div>
+                <div class="step-body">
+                    <div class="step-title">${s.title}</div>
+                    <div class="step-desc">${s.desc}</div>
                 </div>
-            `).join('');
-        }
+            </div>
+        `).join('')}
 
-        function renderWarriorHistory() {
-            const container = document.getElementById('log-list');
-            if (state.history.length === 0) {
-                container.innerHTML = `<div class="p-10 text-center opacity-30 italic text-sm">Belum ada catatan tempur...</div>`;
-                return;
-            }
-            container.innerHTML = state.history.map(h => `
-                <div class="glass p-5 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs font-black text-indigo-400 mb-1">${new Date(h.date).toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long'})}</p>
-                        <p class="text-xs text-gray-500 font-bold uppercase tracking-tighter">${h.count} / ${h.total} MISI SELESAI</p>
+        <div class="guide-section-title"><i class="fas fa-exclamation-triangle" style="font-size:10px"></i> Kesalahan Umum Pemula</div>
+        ${g.mistakes.map(m => `
+            <div class="common-mistake"><strong>⚠ Hindari:</strong> ${m}</div>
+        `).join('')}
+
+        <div class="guide-section-title"><i class="fas fa-lightbulb" style="font-size:10px"></i> Tips untuk Kamu</div>
+        <div class="beginner-tip">${g.tip}</div>
+    `;
+
+    document.getElementById('guide-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('guide-modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+function closeGuideModal(e) {
+    if (e.target === document.getElementById('guide-modal')) closeModal();
+}
+
+// FINALIZE DAY
+function finalizeDay() {
+    const today = getToday();
+    const checked = state.checks[today]?.length || 0;
+    if (checked === 0) return showToast("Selesaikan minimal 1 misi dulu!");
+    if (state.lastFinalized === today) return showToast("Misi hari ini sudah selesai!");
+
+    confetti({ particleCount: 180, spread: 80, origin: { y: 0.6 }, colors: ['#e8ff47', '#4da6ff', '#ff4d4d'] });
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yestKey = yesterday.toISOString().split('T')[0];
+    state.streak = state.lastFinalized === yestKey ? state.streak + 1 : 1;
+
+    const totalTaskXp = [...CONFIG.tasks.morning, ...CONFIG.tasks.workout, ...CONFIG.tasks.night]
+        .filter(t => state.checks[today]?.includes(t.id))
+        .reduce((sum, t) => sum + t.xp, 0);
+
+    state.history.unshift({ date: today, count: checked, total: 13, xp: totalTaskXp });
+    state.lastFinalized = today;
+    showToast("DAY COMPLETED! ⚔️ Warrior Spirit!");
+    save();
+}
+
+// UPDATE WEIGHT
+function updateWeight() {
+    const val = document.getElementById('input-weight').value;
+    if (!val || val < 30 || val > 300) return showToast("Input berat tidak valid!");
+    state.weights.unshift({
+        val: parseFloat(val).toFixed(1),
+        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        rawDate: new Date().toISOString()
+    });
+    document.getElementById('input-weight').value = '';
+    showToast("Berat badan diperbarui! ⚖️");
+    save();
+}
+
+// RENDER
+function render() {
+    const today = getToday();
+    const checks = state.checks[today] || [];
+    const allTasks = [...CONFIG.tasks.morning, ...CONFIG.tasks.workout, ...CONFIG.tasks.night];
+    const totalPossibleXp = allTasks.reduce((s, t) => s + t.xp, 0);
+
+    // Level
+    const lvl = Math.floor(state.totalXp / CONFIG.xpPerLevel) + 1;
+    const xpInLvl = state.totalXp % CONFIG.xpPerLevel;
+    document.getElementById('level-num').innerText = lvl;
+    document.getElementById('xp-label').innerText = `${xpInLvl} / ${CONFIG.xpPerLevel} XP`;
+    document.getElementById('xp-bar').style.width = `${xpInLvl}%`;
+    document.getElementById('total-xp-display').innerText = state.totalXp;
+
+    // Stats
+    document.getElementById('stat-streak').innerText = state.streak;
+    document.getElementById('stat-done').innerText = `${checks.length}/13`;
+    document.getElementById('stat-weight').innerText = CONFIG.targetWeight;
+
+    // Lists
+    renderList('list-morning', CONFIG.tasks.morning, checks, 'count-morning');
+    renderList('list-workout', CONFIG.tasks.workout, checks, 'count-workout');
+    renderList('list-night', CONFIG.tasks.night, checks, 'count-night');
+
+    // BMI
+    if (state.weights.length > 0) {
+        const cw = parseFloat(state.weights[0].val);
+        const bmi = (cw / Math.pow(CONFIG.height / 100, 2)).toFixed(1);
+        const cat = getBMICat(bmi);
+        document.getElementById('stat-bmi-num').innerText = bmi;
+        document.getElementById('bmi-category').innerText = cat;
+        document.getElementById('bmi-label').innerText = `${bmi} — ${cat}`;
+        if (state.weights.length > 1) {
+            const sw = parseFloat(state.weights[state.weights.length - 1].val);
+            const loss = (sw - cw).toFixed(1);
+            const lossEl = document.getElementById('stat-loss');
+            lossEl.innerText = `${loss >= 0 ? '-' : '+'}${Math.abs(loss)}`;
+            lossEl.style.color = loss >= 0 ? 'var(--accent)' : 'var(--red)';
+        }
+    }
+
+    // Weight history
+    const wl = document.getElementById('weight-list');
+    wl.innerHTML = state.weights.length === 0
+        ? '<p style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">Belum ada data berat</p>'
+        : state.weights.slice(0, 7).map(w => `
+            <div class="weight-row">
+                <span class="date">${w.date}</span>
+                <span class="val">${w.val} kg</span>
+            </div>
+        `).join('');
+
+    // Log
+    const ll = document.getElementById('log-list');
+    ll.innerHTML = state.history.length === 0
+        ? `<div class="empty-state"><i class="fas fa-sword"></i><p>Belum ada catatan tempur...</p></div>`
+        : state.history.map(h => `
+            <div class="log-item">
+                <div>
+                    <div class="log-date">${new Date(h.date).toLocaleDateString('id-ID', {weekday:'long',day:'numeric',month:'long'})}</div>
+                    <div class="log-sub">${h.count} / ${h.total} Misi · ${h.xp} XP</div>
+                </div>
+                <div class="log-pct" style="color:${h.count/h.total >= 0.8 ? 'var(--accent)' : h.count/h.total >= 0.5 ? 'var(--amber)' : 'var(--red)'}">${Math.round(h.count/h.total*100)}%</div>
+            </div>
+        `).join('');
+
+    // Quote
+    document.getElementById('quote-display').innerText = CONFIG.quotes[new Date().getDay() % CONFIG.quotes.length];
+
+    // Finalize button
+    const btn = document.getElementById('btn-finalize');
+    const banner = document.getElementById('done-banner');
+    if (state.lastFinalized === today) {
+        btn.disabled = true;
+        btn.innerText = "Misi Hari Ini Sudah Selesai ✅";
+        banner.style.display = 'block';
+    } else {
+        btn.disabled = false;
+        btn.innerText = "Selesaikan Misi & Claim XP ⚡";
+        banner.style.display = 'none';
+    }
+}
+
+function renderList(containerId, data, checks, countId) {
+    const container = document.getElementById(containerId);
+    let done = 0;
+    container.innerHTML = data.map(t => {
+        const isChecked = checks.includes(t.id);
+        if (isChecked) done++;
+        return `
+            <div class="task-card ${isChecked ? 'done' : ''}">
+                <div class="task-main" onclick="toggleTask('${t.id}', ${t.xp})">
+                    <div class="task-check">${isChecked ? '<i class="fas fa-check"></i>' : ''}</div>
+                    <div class="task-info">
+                        <div class="task-name">${t.text}</div>
+                        <div class="task-subdesc">${t.desc}</div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-xl font-black text-white">${Math.round((h.count/h.total)*100)}%</p>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                        <span class="task-xp">+${t.xp} XP</span>
                     </div>
                 </div>
-            `).join('');
-        }
+                <div style="padding: 0 16px 12px;display:flex;justify-content:flex-end">
+                    <button class="task-expand-btn" onclick="showGuide('${t.id}')">
+                        <i class="fas fa-book-open" style="font-size:10px;margin-right:4px"></i> Panduan
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    document.getElementById(countId).innerText = `${done}/${data.length}`;
+}
 
-        // HELPERS
-        function getBMICat(bmi) {
-            if (bmi < 18.5) return "Underweight";
-            if (bmi < 25) return "Ideal";
-            if (bmi < 30) return "Overweight";
-            return "Obese";
-        }
+function getBMICat(bmi) {
+    if (bmi < 18.5) return "Underweight";
+    if (bmi < 25) return "Ideal ✓";
+    if (bmi < 30) return "Overweight";
+    return "Obese";
+}
 
-        function showScreen(name) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(`screen-${name}`).classList.add('active');
-            
-            document.querySelectorAll('nav button').forEach(b => b.classList.replace('text-indigo-500', 'text-gray-500'));
-            document.getElementById(`nav-${name}`).classList.replace('text-gray-500', 'text-indigo-500');
-            window.scrollTo(0,0);
-        }
+function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`screen-${name}`).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`nav-${name}`).classList.add('active');
+    window.scrollTo(0, 0);
+}
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.opacity = '1';
-            t.style.top = '40px';
-            setTimeout(() => {
-                t.style.opacity = '0';
-                t.style.top = '10px';
-            }, 2500);
-        }
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
 
-        function resetAllData() {
-            if(confirm("Hapus semua progress permanen?")) {
-                localStorage.removeItem('warrior_pro_data');
-                location.reload();
-            }
-        }
+function resetAllData() {
+    if (confirm("Hapus semua progress? Tindakan ini tidak bisa dibatalkan.")) {
+        localStorage.removeItem('warrior_pro_v2');
+        location.reload();
+    }
+}
 
-        // START
-        window.onload = render;
-    </script>
+window.onload = render;
+</script>
 </body>
 </html>
